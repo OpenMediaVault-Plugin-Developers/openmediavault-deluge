@@ -23,6 +23,69 @@
 
 Ext.define("OMV.module.admin.service.deluge.Settings", {
     extend   : "OMV.workspace.form.Panel",
+    uses : [
+        "OMV.data.Model",
+        "OMV.data.Store",
+        "OMV.module.admin.service.deluge.InstallDelude"
+    ],
+
+    rpcService   : "Deluge",
+    rpcGetMethod : "getSettings",
+    rpcSetMethod : "setSettings",
+
+    plugins      : [{
+        ptype        : "linkedfields",
+        correlations : [{
+            name       : [
+                "main",
+                "webui",
+            ],
+            conditions : [
+                { name  : "done", value : false }
+            ],
+            properties : "!show"
+        },{
+            name       : [
+                "mainbackup",
+            ],
+            conditions : [
+                { name  : "done", value : false }
+            ],
+            properties : "!show"
+        },{
+            name       : [
+                "install",
+            ],
+            conditions : [
+                { name  : "done", value : true }
+            ],
+            properties : "!show"
+        },{
+            name       : [
+                "port",
+            ],
+            properties : "!show"
+        },{
+            name       : [
+                "done",
+            ],
+            properties : "!show"
+        },{
+            name : [
+                "opendeluge",
+            ],
+            conditions : [{
+                name  : "showtab",
+                value : true
+            },{
+                name  : "enable",
+                value : true
+            }],
+            properties : [
+                "enabled"
+            ]
+        }]
+    }],
 
     initComponent : function () {
         var me = this;
@@ -46,26 +109,13 @@ Ext.define("OMV.module.admin.service.deluge.Settings", {
         me.callParent(arguments);
     },
 
-    rpcService   : "Deluge",
-    rpcGetMethod : "getSettings",
-    rpcSetMethod : "setSettings",
-
-    plugins      : [{
-        ptype        : "linkedfields",
-        correlations : [{
-            name       : [
-                "port",
-            ],
-            properties : "!show"
-        }]
-    }],
-
     getFormItems : function() {
         var me = this;
 
         return [{
             xtype    : "fieldset",
             title    : "General settings",
+            name     : "main",
             defaults : {
                 labelSeparator : ""
             },
@@ -77,6 +127,12 @@ Ext.define("OMV.module.admin.service.deluge.Settings", {
             },{
                 xtype      : "checkbox",
                 name       : "showtab",
+                fieldLabel : _("Show Tab"),
+                boxLabel   : _("Show tab containing Deluge web interface frame."),
+                checked    : false
+            },{
+                xtype      : "checkbox",
+                name       : "done",
                 fieldLabel : _("Show Tab"),
                 boxLabel   : _("Show tab containing Deluge web interface frame."),
                 checked    : false
@@ -103,33 +159,34 @@ Ext.define("OMV.module.admin.service.deluge.Settings", {
                 },
                 margin : "0 0 5 0"
             }]
-                },{
-                        xtype: "fieldset",
-                        title: _("Backup User Settings"),
-                        fieldDefaults: {
-                                labelSeparator: ""
-                        },
-                        items : [{
-                xtype         : "combo",
-                name          : "mntentref",
-                fieldLabel    : _("Volume"),
-                emptyText     : _("Select a volume ..."),
-                allowBlank    : false,
-                allowNone     : false,
-                editable      : false,
-                triggerAction : "all",
-                displayField  : "description",
-                valueField    : "uuid",
-                store         : Ext.create("OMV.data.Store", {
-                    autoLoad : true,
-                    model    : OMV.data.Model.createImplicit({
-                        idProperty : "uuid",
-                        fields     : [
-                            { name : "uuid", type : "string" },
-                            { name : "devicefile", type : "string" },
-                            { name : "description", type : "string" }
-                        ]
-                    }),
+            },{
+                xtype        : "fieldset",
+                title        : _("Backup User Settings"),
+                name         : "mainbackup",
+                fieldDefaults: {
+                        labelSeparator: ""
+                },
+                items : [{
+                    xtype         : "combo",
+                    name          : "mntentref",
+                    fieldLabel    : _("Volume"),
+                    emptyText     : _("Select a volume ..."),
+                    allowBlank    : false,
+                    allowNone     : false,
+                    editable      : false,
+                    triggerAction : "all",
+                    displayField  : "description",
+                    valueField    : "uuid",
+                    store         : Ext.create("OMV.data.Store", {
+                        autoLoad : true,
+                        model    : OMV.data.Model.createImplicit({
+                            idProperty : "uuid",
+                            fields     : [
+                                { name : "uuid", type : "string" },
+                                { name : "devicefile", type : "string" },
+                                { name : "description", type : "string" }
+                            ]
+                        }),
                     proxy : {
                         type : "rpc",
                         rpcData : {
@@ -170,10 +227,23 @@ Ext.define("OMV.module.admin.service.deluge.Settings", {
                 border : false,
                 html   : "<ul><li>" + _("Restore settings from a data drive.") + "</li></ul>"
             }]
+            },{
+                xtype         : "fieldset",
+                title         : _("Deluge Installer"),
+                name          : "install",
+                fieldDefaults : {
+                    labelSeparator: ""
+                },
+                items: [{xtype   : "button",
+                    text    : _("Install Deluge"),
+                    scope   : this,
+                    handler : Ext.Function.bind(me.onInstallButton, me, [ me ]),
+                    margin  : "5 0 0 0"
+                }]
         }];
     },
-	
-	onBackupButton: function() {
+
+    onBackupButton: function() {
         var me = this;
         me.doSubmit();
         Ext.create("OMV.window.Execute", {
@@ -189,13 +259,29 @@ Ext.define("OMV.module.admin.service.deluge.Settings", {
         }).show();
     },
 
-	onRestoreButton: function() {
+    onRestoreButton: function() {
         var me = this;
         me.doSubmit();
         Ext.create("OMV.window.Execute", {
             title      : _("Restore"),
             rpcService : "Deluge",
             rpcMethod  : "doRestore",
+            listeners  : {
+                scope     : me,
+                exception : function(wnd, error) {
+                    OMV.MessageBox.error(null, error);
+                }
+            }
+        }).show();
+    },
+
+    onInstallButton: function() {
+        var me = this;
+        me.doSubmit();
+        Ext.create("OMV.window.Execute", {
+            title      : _("Deluge Installer"),
+            rpcService : "Deluge",
+            rpcMethod  : "doInstall",
             listeners  : {
                 scope     : me,
                 exception : function(wnd, error) {

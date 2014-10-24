@@ -26,14 +26,19 @@ PIDFILE2=/var/run/$NAME2.pid
 UMASK=0
 PKGNAME=deluge-daemon
 SCRIPTNAME=/etc/init.d/$PKGNAME
-DELUGED_USER="root"
-chown $DELUGED_USER:$DELUGED_USER -R /var/log/deluge
+DELUGED_USER="deluge-daemon"
+
 # Exit if the package is not installed
 [ -x "$DAEMON1" -a -x "$DAEMON2" ] || exit 0
 
 # Define LSB log_* functions.
 # Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
 . /lib/lsb/init-functions
+
+if [ ! -d "/var/log/deluge" ]; then
+    mkdir -p /var/log/deluge
+fi
+chown $DELUGED_USER:users -R /var/log/deluge
 
 #
 # Function that starts the daemon/service

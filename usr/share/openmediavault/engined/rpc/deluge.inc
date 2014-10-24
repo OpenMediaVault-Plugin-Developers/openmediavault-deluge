@@ -26,7 +26,7 @@ require_once "openmediavault/rpcservice.inc";
 require_once "openmediavault/system.inc";
 require_once "openmediavault/util.inc";
 
-class OMVRpcServiceHeadphones extends OMVRpcServiceAbstract
+class OMVRpcServiceDeluge extends OMVRpcServiceAbstract
 {
     private function getPluginName()
     {
@@ -62,9 +62,10 @@ class OMVRpcServiceHeadphones extends OMVRpcServiceAbstract
     {
         $this->registerMethod("getSettings");
         $this->registerMethod("setSettings");
-        
+
         $this->registerMethod("doBackup");
         $this->registerMethod("doRestore");
+        $this->registerMethod("doInstall");
     }
 
     public function getSettings($params, $context)
@@ -101,6 +102,7 @@ class OMVRpcServiceHeadphones extends OMVRpcServiceAbstract
 
         $object["enable"]  = boolval($object["enable"]);
         $object["showtab"] = boolval($object["showtab"]);
+        $object["done"]    = boolval($object["done"]);
         $object["port"]    = intval($port);
 
         return $object;
@@ -122,6 +124,7 @@ class OMVRpcServiceHeadphones extends OMVRpcServiceAbstract
                     "enable"    : { "type" : "boolean" },
                     "showtab"   : { "type" : "boolean" },
                     "port"      : { "type" : "integer" },
+                    "done"      : { "type" : "boolean" },
                     "mntentref" : { ' . $GLOBALS["OMV_JSONSCHEMA_UUID_NONE"] . ' },
                     "path"      : { "type" : "string", "optional" : true }
                 }
@@ -149,6 +152,7 @@ class OMVRpcServiceHeadphones extends OMVRpcServiceAbstract
             "enable"    => array_boolval($params, "enable"),
             "showtab"   => array_boolval($params, "showtab"),
             "port"      => $params["port"],
+            "done"      => array_boolval($params, "done"),
             "mntentref" => $params["mntentref"],
             "path"      => $params["path"],
         );
@@ -267,7 +271,7 @@ class OMVRpcServiceHeadphones extends OMVRpcServiceAbstract
 
             // Child process.
             try {
-                $headphonesModule->stopService();
+                $delugeModule->stopService();
                 $bgOutputFilename = $this->createBgProcOutput();
                 $this->updateBgProcStatus(
                     $bgStatusFilename,
@@ -288,6 +292,48 @@ class OMVRpcServiceHeadphones extends OMVRpcServiceAbstract
             }
         } else {
             throw new OMVException(OMVErrorMsg::E_EXEC_MISC, "No backup found!");
+        }
+    }
+
+    public function doInstall($params, $context)
+    {
+        global $xmlConfig;
+
+        // Validate the RPC caller context.
+        $this->validateMethodContext($context, array(
+            "role" => OMV_ROLE_ADMINISTRATOR
+        ));
+
+        // Create a background process.
+        $bgStatusFilename = $this->createBgProcStatus();
+        $pid = $this->fork();
+
+        // Parent process.
+        if ($pid > 0) {
+            $this->initializeBgProcStatus($bgStatusFilename, $pid);
+            return $bgStatusFilename;
+        }
+
+        // Child process.
+        try {
+            $bgOutputFilename = $this->createBgProcOutput();
+            $this->updateBgProcStatus(
+                $bgStatusFilename,
+                "outputfilename",
+                $bgOutputFilename
+            );
+
+            $cmd = sprintf(
+                "omv-mkconf %s install 2>&1",
+                $this->getPluginName()
+            );
+
+            $this->exec($cmd, $output, $bgOutputFilename);
+            $this->finalizeBgProcStatus($bgStatusFilename, $output);
+            exit(0);
+        } catch (Exception $e) {
+            $this->finalizeBgProcStatus($bgStatusFilename, "", $e);
+            exit(1);
         }
     }
 }
