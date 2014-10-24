@@ -47,19 +47,6 @@ class OMVModuleDeluge extends OMVModuleServiceAbstract implements
         return "Deluge";
     }
 
-    public function applyConfig()
-    {
-        $cmd = sprintf("omv-mkconf %s 2>&1", $this->getPluginName());
-
-        if (0 !== $this->exec($cmd, $output)) {
-            throw new OMVException(
-                OMVErrorMsg::E_EXEC_FAILED,
-                $cmd,
-                implode("\n", $output)
-            );
-        }
-    }
-
     public function getStatus()
     {
         global $xmlConfig;
@@ -100,13 +87,13 @@ class OMVModuleDeluge extends OMVModuleServiceAbstract implements
             return;
         }
 
-        $initd = new OMVSysVInitScript($this->getPluginName(), true);
+        $initd = new OMVSysVInitScript("deluge-daemon", true);
         $initd->exec();
     }
 
     public function stopService()
     {
-        $initd = new OMVSysVInitScript($this->getPluginName());
+        $initd = new OMVSysVInitScript("deluge-daemon");
         $initd->exec();
     }
 

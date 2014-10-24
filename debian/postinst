@@ -29,7 +29,7 @@ case "$1" in
             echo "Initial configuration."
             object="<enable>0</enable>"
             object="${object}<showtab>0</showtab>"
-            object="${object}<port>0</port>"
+            object="${object}<port>8112</port>"
             object="${object}<done>0</done>"
             omv_config_add_element "/config/services" "deluge" "${object}" true
         fi

@@ -238,8 +238,12 @@ Ext.define("OMV.module.admin.service.deluge.Settings", {
                     text    : _("Install Deluge"),
                     scope   : this,
                     handler : Ext.Function.bind(me.onInstallButton, me, [ me ]),
-                    margin  : "5 0 0 0"
-                }]
+                    margin : "5 5 5 5"
+            },{
+                border : false,
+                html   : "<ul><li>" + ("Main setting will apear after you have installed Deluge.") + "</li></ul>" +
+                         "<ul><li>" + ("Remember the default webui password is deluge") + "</li></ul>"
+            }]
         }];
     },
 
@@ -286,7 +290,10 @@ Ext.define("OMV.module.admin.service.deluge.Settings", {
                 scope     : me,
                 exception : function(wnd, error) {
                     OMV.MessageBox.error(null, error);
-                }
+                },
+                finish : function() {
+                                    me.doReload();
+                                }
             }
         }).show();
     }

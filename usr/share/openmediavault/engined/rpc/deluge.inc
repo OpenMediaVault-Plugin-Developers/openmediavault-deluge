@@ -28,6 +28,9 @@ require_once "openmediavault/util.inc";
 
 class OMVRpcServiceDeluge extends OMVRpcServiceAbstract
 {
+    private $delugeSettingsFile = "/home/deluge-daemon/.config/deluge/web.conf";
+    private $delugeSettingsDir = "/home/deluge-daemon/.config/";
+
     private function getPluginName()
     {
         return strtolower($this->getName());
@@ -85,20 +88,20 @@ class OMVRpcServiceDeluge extends OMVRpcServiceAbstract
             );
         }
 
-        $port = 8181;
+        $port = 8112;
 
-        // Get current port as set in headphones config file
-        //if (file_exists($this->headphonesSettingsFile)) {
-        //    $config = parse_ini_file(
-        //        $this->headphonesSettingsFile,
-        //        true,
-        //        INI_SCANNER_RAW
-        //    );
+        // Get current port as set in deluges config file
+        if (file_exists($this->delugeSettingsFile)) {
+            $config = parse_ini_file(
+                $this->delugeSettingsFile,
+                true,
+                INI_SCANNER_RAW
+            );
 
-        //    if (!empty($config["General"]["http_port"])) {
-        //        $port = $config["General"]["http_port"];
-        //    }
-        //}
+            if (!empty($config["port"])) {
+                $port = $config["port"];
+            }
+        }
 
         $object["enable"]  = boolval($object["enable"]);
         $object["showtab"] = boolval($object["showtab"]);
@@ -178,9 +181,8 @@ class OMVRpcServiceDeluge extends OMVRpcServiceAbstract
     {
         global $xmlConfig;
 
-        //Headphones needs to have run once to generate its
         // settings. Check if this is true
-        if (!file_exists($this->headphonesSettingsFile)) {
+        if (!file_exists($this->delugeSettingsFile)) {
             throw new OMVException(
                 OMVErrorMsg::E_EXEC_MISC,
                 "No settings folder found!"
@@ -218,7 +220,7 @@ class OMVRpcServiceDeluge extends OMVRpcServiceAbstract
             $cmd = sprintf(
                 "tar -zcvPf %s %s 2>&1",
                 $backupPath,
-                $this->headphonesSettingsDir
+                $this->delugeSettingsDir
             );
 
             $this->exec($cmd, $output, $bgOutputFilename);
@@ -263,7 +265,7 @@ class OMVRpcServiceDeluge extends OMVRpcServiceAbstract
             }
 
             // Delete current settings folder
-            //rmdir($this->delugeSettingsDir);
+            rmdir($this->delugeSettingsDir);
 
             // Get the Headphones module
             $moduleMgr = &OMVModuleMgr::getInstance();

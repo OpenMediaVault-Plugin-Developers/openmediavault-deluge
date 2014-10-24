@@ -21,8 +21,8 @@ wget http://jamied.pwp.blueyonder.co.uk/python-libtorrent_0.16.17-1ubuntu3~ppa1~
 
 rm /tmp/libtorrent-rasterbar7_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
 rm /tmp/python-libtorrent_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
-apt-get -y install -t precise deluge-common deluged deluge-web deluge-console
 
+apt-get -y install -t precise deluge-common deluged deluge-web deluge-console
 
 xmlstarlet ed -L -u "//services/deluge/done" -v 1 -n ${OMV_CONFIG_FILE}
 }
@@ -30,9 +30,6 @@ xmlstarlet ed -L -u "//services/deluge/done" -v 1 -n ${OMV_CONFIG_FILE}
 case "$2" in
   install)
     install
-    ;;
-  getsettings)
-    getsettings
     ;;
   *)
     exit 1
