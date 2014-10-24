@@ -1,0 +1,4 @@
+openmediavault-deluge
+=========================
+
+deluge plugin

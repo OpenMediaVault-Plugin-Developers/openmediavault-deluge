@@ -1,0 +1,52 @@
+#!/bin/sh
+
+set -e
+
+. /etc/default/openmediavault
+. /usr/share/openmediavault/scripts/helper-functions
+
+case "$1" in
+    configure)
+        if ! getent passwd deluge-daemon >/dev/null 2>&1; then
+            echo "Adding deluge-daemon user..."
+            useradd --create-home --groups users --no-user-group --shell /usr/sbin/nologin deluge-daemon
+            insserv -d deluge-daemon
+        else
+            echo "deluge-daemon user already exists."
+        fi
+
+        if [ -f "/var/run/deluged.pid" ]; then
+            echo "Cleaning old pid file..."
+            rm -Rf /var/run/deluged.pid
+        fi
+
+        if [ -f "/var/run/deluge.pid" ]; then
+            echo "Cleaning old pid file..."
+            rm -Rf /var/run/deluge.pid
+        fi
+
+        if ! omv_config_exists "/config/services/deluge"; then
+            echo "Initial configuration."
+            object="<enable>0</enable>"
+            object="${object}<showtab>0</showtab>"
+            omv_config_add_element "/config/services" "deluge" "${object}" true
+        fi
+        
+        omv_install_fixperms
+
+        # Activate package triggers. These triggers are only set during the
+        # package installation.
+        dpkg-trigger update-fixperms
+        dpkg-trigger update-locale
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument" >&2
+        exit 1
+    ;;
+esac
+
+exit 0
