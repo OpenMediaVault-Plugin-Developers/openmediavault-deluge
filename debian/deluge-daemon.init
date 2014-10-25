@@ -82,11 +82,14 @@ do_stop()
    RETVAL2="$?"
    start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --user $DELUGED_USER --pidfile $PIDFILE1
    RETVAL1="$?"
+   echo "$RETVAL1 - $RETVAL2"
+   echo "1"
    [ "$RETVAL1" = "2" -o "$RETVAL2" = "2" ] && return 2
-
+   echo "2"
    rm -f $PIDFILE1 $PIDFILE2
 
    [ "$RETVAL1" = "0" -a "$RETVAL2" = "0" ] && return 0 || return 1
+   echo "1"
 }
 
 case "$1" in
@@ -124,6 +127,9 @@ case "$1" in
       ;;
    esac
    ;;
+  status)
+   status_of_proc "$DAEMON1" "$DELUGED_USER" && exit 0 || exit $?
+  ;;
   *)
    echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2
    exit 3

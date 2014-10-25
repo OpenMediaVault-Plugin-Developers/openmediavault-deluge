@@ -60,10 +60,10 @@ class OMVModuleDeluge extends OMVModuleServiceAbstract implements
             );
         }
 
-        $initd = new OMVSysVInitScript($this->getPluginName());
+        $initd = new OMVSysVInitScript("deluge-daemon");
 
         return array(
-            "name"    => $this->getPluginName(),
+            "name"    => $this->getName(),
             "title"   => gettext($this->getName()),
             "enabled" => boolval($object["enable"]),
             "running" => $initd->status() == 0

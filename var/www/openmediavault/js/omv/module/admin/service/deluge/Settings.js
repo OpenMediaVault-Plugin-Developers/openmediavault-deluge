@@ -75,9 +75,6 @@ Ext.define("OMV.module.admin.service.deluge.Settings", {
                 "opendeluge",
             ],
             conditions : [{
-                name  : "showtab",
-                value : true
-            },{
                 name  : "enable",
                 value : true
             }],
