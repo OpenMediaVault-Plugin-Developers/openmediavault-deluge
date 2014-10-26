@@ -29,7 +29,7 @@ case "$1" in
 
         userdel -r deluge-daemon
 
-        ( sleep 60; apt-get --yes --auto-remove --purge remove python-libtorrent libtorrent-rasterbar7 deluge-common deluged deluge-web deluge-console 2>&1) &
+        ( sleep 60; apt-get --yes --auto-remove --purge remove python-libtorrent libtorrent-rasterbar7 deluge-common deluge-gtk deluge deluged deluge-web deluge-console 2>&1) &
 
     ;;
 

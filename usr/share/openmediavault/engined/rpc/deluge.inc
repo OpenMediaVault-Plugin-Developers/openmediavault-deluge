@@ -69,6 +69,7 @@ class OMVRpcServiceDeluge extends OMVRpcServiceAbstract
         $this->registerMethod("doBackup");
         $this->registerMethod("doRestore");
         $this->registerMethod("doInstall");
+        $this->registerMethod("doOld");
     }
 
     public function getSettings($params, $context)
@@ -327,6 +328,48 @@ class OMVRpcServiceDeluge extends OMVRpcServiceAbstract
 
             $cmd = sprintf(
                 "omv-mkconf %s install 2>&1",
+                $this->getPluginName()
+            );
+
+            $this->exec($cmd, $output, $bgOutputFilename);
+            $this->finalizeBgProcStatus($bgStatusFilename, $output);
+            exit(0);
+        } catch (Exception $e) {
+            $this->finalizeBgProcStatus($bgStatusFilename, "", $e);
+            exit(1);
+        }
+    }
+
+    public function doOld($params, $context)
+    {
+        global $xmlConfig;
+
+        // Validate the RPC caller context.
+        $this->validateMethodContext($context, array(
+            "role" => OMV_ROLE_ADMINISTRATOR
+        ));
+
+        // Create a background process.
+        $bgStatusFilename = $this->createBgProcStatus();
+        $pid = $this->fork();
+
+        // Parent process.
+        if ($pid > 0) {
+            $this->initializeBgProcStatus($bgStatusFilename, $pid);
+            return $bgStatusFilename;
+        }
+
+        // Child process.
+        try {
+            $bgOutputFilename = $this->createBgProcOutput();
+            $this->updateBgProcStatus(
+                $bgStatusFilename,
+                "outputfilename",
+                $bgOutputFilename
+            );
+
+            $cmd = sprintf(
+                "omv-mkconf %s old 2>&1",
                 $this->getPluginName()
             );
 

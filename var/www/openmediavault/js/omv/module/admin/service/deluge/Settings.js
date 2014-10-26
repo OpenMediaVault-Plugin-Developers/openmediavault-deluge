@@ -231,10 +231,17 @@ Ext.define("OMV.module.admin.service.deluge.Settings", {
                 fieldDefaults : {
                     labelSeparator: ""
                 },
-                items: [{xtype   : "button",
+                items: [{
+                    xtype   : "button",
                     text    : _("Install Deluge"),
                     scope   : this,
                     handler : Ext.Function.bind(me.onInstallButton, me, [ me ]),
+                    margin : "5 5 5 5"
+            },{
+                    xtype   : "button",
+                    text    : _("Install Deluge 1.3.5"),
+                    scope   : this,
+                    handler : Ext.Function.bind(me.onOldButton, me, [ me ]),
                     margin : "5 5 5 5"
             },{
                 border : false,
@@ -283,6 +290,25 @@ Ext.define("OMV.module.admin.service.deluge.Settings", {
             title      : _("Deluge Installer"),
             rpcService : "Deluge",
             rpcMethod  : "doInstall",
+            listeners  : {
+                scope     : me,
+                exception : function(wnd, error) {
+                    OMV.MessageBox.error(null, error);
+                },
+                finish : function() {
+                                    me.doReload();
+                                }
+            }
+        }).show();
+    },
+
+    onOldButton: function() {
+        var me = this;
+        me.doSubmit();
+        Ext.create("OMV.window.Execute", {
+            title      : _("Deluge Installer"),
+            rpcService : "Deluge",
+            rpcMethod  : "doOld",
             listeners  : {
                 scope     : me,
                 exception : function(wnd, error) {
