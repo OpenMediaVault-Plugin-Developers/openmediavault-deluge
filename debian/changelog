@@ -1,3 +1,8 @@
+openmediavault-deluge (1.1) stable; urgency=low
+
+  * Initial repo release
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Wed, 05 Nov 2014 05:17:27 -0500
 openmediavault-deluge (1.0) stable; urgency=low
 
   * Initial release

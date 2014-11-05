@@ -13,15 +13,15 @@ export DEBIAN_FRONTEND=noninteractive
 install() {
 # Need to get compatable versions of libtorrent-rasterbar and python-libtorrent
 # I have compiled these deb packages and uploaded them for use until a better method is found
-cd /tmp
-wget -q http://jamied.pwp.blueyonder.co.uk/libtorrent-rasterbar7_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
-wget -q http://jamied.pwp.blueyonder.co.uk/python-libtorrent_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
+#cd /tmp
+#wget -q http://jamied.pwp.blueyonder.co.uk/libtorrent-rasterbar7_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
+#wget -q http://jamied.pwp.blueyonder.co.uk/python-libtorrent_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
 
-/usr/bin/dpkg -i /tmp/libtorrent-rasterbar7_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
-/usr/bin/dpkg -i /tmp/python-libtorrent_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
+#/usr/bin/dpkg -i /tmp/libtorrent-rasterbar7_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
+#/usr/bin/dpkg -i /tmp/python-libtorrent_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
 
-rm /tmp/libtorrent-rasterbar7_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
-rm /tmp/python-libtorrent_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
+#rm /tmp/libtorrent-rasterbar7_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
+#rm /tmp/python-libtorrent_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
 
 apt-get -y install -t precise deluge-common deluged deluge-web deluge-console
 
@@ -32,14 +32,14 @@ old() {
 # Need to get compatable versions of libtorrent-rasterbar and python-libtorrent
 # I have compiled these deb packages and uploaded them for use until a better method is found
 cd /tmp
-wget -q http://jamied.pwp.blueyonder.co.uk/libtorrent-rasterbar7_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
-wget -q http://jamied.pwp.blueyonder.co.uk/python-libtorrent_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
+#wget -q http://jamied.pwp.blueyonder.co.uk/libtorrent-rasterbar7_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
+#wget -q http://jamied.pwp.blueyonder.co.uk/python-libtorrent_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
 
-/usr/bin/dpkg -i /tmp/libtorrent-rasterbar7_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
-/usr/bin/dpkg -i /tmp/python-libtorrent_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
+#/usr/bin/dpkg -i /tmp/libtorrent-rasterbar7_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
+#/usr/bin/dpkg -i /tmp/python-libtorrent_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
 
-rm /tmp/libtorrent-rasterbar7_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
-rm /tmp/python-libtorrent_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
+#rm /tmp/libtorrent-rasterbar7_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
+#rm /tmp/python-libtorrent_0.16.17-1ubuntu3~ppa1~precise_amd64.deb
 
 wget -q http://archive.ubuntu.com/ubuntu/pool/universe/d/deluge/deluge-common_1.3.5-0ubuntu2~precise2_all.deb
 wget -q http://archive.ubuntu.com/ubuntu/pool/universe/d/deluge/deluge-console_1.3.5-0ubuntu2~precise2_all.deb
