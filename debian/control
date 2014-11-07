@@ -10,7 +10,7 @@ Architecture: all
 Depends: ${misc:Depends}, openmediavault (>= 1.0), python, python-twisted, python-openssl,
  intltool, python-xdg, python-chardet, geoip-database, python-notify, python-pygame,
  python-glade2, librsvg2-common, xdg-utils, python-mako, notification-daemon,
- python-appindicator, libboost-system, libboost-python,
+ python-appindicator, libboost-system1.49.0, libboost-python1.49.0,
  libtorrent-rasterbar7 (= 0.16.17-1ubuntu3~ppa1~precise), python-libtorrent (= 0.16.17-1ubuntu3~ppa1~precise)
 Priority: optional
 Description: OpenMediaVault Deluged plugin
