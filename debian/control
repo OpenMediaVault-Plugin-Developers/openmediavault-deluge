@@ -13,4 +13,4 @@ Depends: ${misc:Depends}, openmediavault (>= 1.0), python, python-twisted, pytho
  python-appindicator
 Priority: optional
 Description: OpenMediaVault Deluged plugin
- Deluge is a full-featured ​BitTorrent client.
+ Deluge is a full-featured BtTorrent client.

@@ -18,7 +18,9 @@ install_libs() {
 URL_LINK="http://dh2k.omv-extras.org/debian/pool/main/libt/libtorrent-rasterbar/"
 
 cd /tmp
-echo "installing libboost-system-dev & libboost-python-dev"
+echo "Starting Deluge install process."
+echo "Installing libboost-system-dev & libboost-python-dev"
+echo "Please wait, it can take some time...."
 apt-get -y -q install libboost-system-dev libboost-python-dev >/dev/null 2>&1 || apt-get install -y -f
 arch=$(uname -m | sed 's/x86_//;s/i[3-6]86/32/')
 
