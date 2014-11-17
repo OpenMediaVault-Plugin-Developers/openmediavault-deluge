@@ -83,13 +83,12 @@ do_stop()
    start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --user $DELUGED_USER --pidfile $PIDFILE1
    RETVAL1="$?"
    echo "$RETVAL1 - $RETVAL2"
-   echo "1"
+
    [ "$RETVAL1" = "2" -o "$RETVAL2" = "2" ] && return 2
-   echo "2"
+
    rm -f $PIDFILE1 $PIDFILE2
 
    [ "$RETVAL1" = "0" -a "$RETVAL2" = "0" ] && return 0 || return 1
-   echo "1"
 }
 
 case "$1" in
