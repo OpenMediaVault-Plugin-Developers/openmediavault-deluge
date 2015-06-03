@@ -17,16 +17,17 @@
 
 // require("js/omv/WorkspaceManager.js")
 // require("js/omv/workspace/form/Panel.js")
+// require("js/omv/form/plugin/LinkedFields.js")
+// require("js/omv/Rpc.js")
 // require("js/omv/data/Store.js")
 // require("js/omv/data/Model.js")
-// require("js/omv/form/plugin/LinkedFields.js")
+// require("js/omv/data/proxy/Rpc.js")
 
 Ext.define("OMV.module.admin.service.deluge.Settings", {
-    extend   : "OMV.workspace.form.Panel",
+    extend : "OMV.workspace.form.Panel",
     uses : [
         "OMV.data.Model",
-        "OMV.data.Store",
-        "OMV.module.admin.service.deluge.InstallDelude"
+        "OMV.data.Store"
     ],
 
     rpcService   : "Deluge",
