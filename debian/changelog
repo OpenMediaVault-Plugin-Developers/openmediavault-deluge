@@ -1,3 +1,9 @@
+openmediavault-deluge (3.0) stable; urgency=low
+
+  * OMV 3.0 release.
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Sat, 02 Jan 2015 10:56:45 +0000
+
 openmediavault-deluge (1.5) stable; urgency=low
 
   * Add custom debian/control field XB-Plugin-Section

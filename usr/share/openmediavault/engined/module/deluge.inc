@@ -19,7 +19,7 @@
 
 require_once "openmediavault/config.inc";
 require_once "openmediavault/error.inc";
-require_once "openmediavault/initscript.inc";
+require_once "openmediavault/systemctl.inc";
 require_once "openmediavault/module.inc";
 require_once "openmediavault/util.inc";
 
@@ -39,7 +39,7 @@ class OMVModuleDeluge extends OMVModuleServiceAbstract implements
 
     private function getXPath()
     {
-        return sprintf("//services/%s", $this->getPluginName());
+        return sprintf("/config/services/%s", $this->getPluginName());
     }
 
     public function getName()
@@ -60,13 +60,13 @@ class OMVModuleDeluge extends OMVModuleServiceAbstract implements
             );
         }
 
-        $initd = new OMVSysVInitScript("deluge-daemon");
+        $systemCtl = new OMVSystemCtl("deluge-daemon");
 
         return array(
             "name"    => $this->getName(),
             "title"   => gettext($this->getName()),
             "enabled" => boolval($object["enable"]),
-            "running" => $initd->status() == 0
+            "running" => $systemCtl->isActive()
         );
     }
 
@@ -87,14 +87,14 @@ class OMVModuleDeluge extends OMVModuleServiceAbstract implements
             return;
         }
 
-        $initd = new OMVSysVInitScript("deluge-daemon", true);
-        $initd->exec();
+        $systemCtl = new OMVSystemCtl("deluge-daemon");
+        $systemCtl->enable(true);
     }
 
     public function stopService()
     {
-        $initd = new OMVSysVInitScript("deluge-daemon");
-        $initd->exec();
+        $systemCtl = new OMVSystemCtl("deluge-daemon");
+        $systemCtl->enable(true);
     }
 
     public function bindListeners(OMVNotifyDispatcher $dispatcher)

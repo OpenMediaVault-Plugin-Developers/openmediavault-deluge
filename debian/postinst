@@ -7,6 +7,17 @@ set -e
 
 case "$1" in
     configure)
+        # Set the default settings of the service package to those expected by
+        # OpenMediaVault.
+        #if [ -z "${2}" ] && [ -f /etc/init.d/deluge-daemon ]; then
+        #    systemctl stop deluge-daemon.service
+        #    systemctl disable deluge-daemon.service
+        #fi
+
+        SERVICE_XPATH_NAME="deluge"
+        SERVICE_XPATH="/config/services/${SERVICE_XPATH_NAME}"
+
+
         if ! getent passwd deluge-daemon >/dev/null 2>&1; then
             echo "Adding deluge-daemon user..."
             useradd --create-home --groups users --no-user-group --shell /usr/sbin/nologin deluge-daemon
@@ -25,21 +36,19 @@ case "$1" in
             rm -Rf /var/run/deluge.pid
         fi
 
-        if ! omv_config_exists "/config/services/deluge"; then
-            echo "Initial configuration."
-            object="<enable>0</enable>"
-            object="${object}<showtab>0</showtab>"
-            object="${object}<port>8112</port>"
-            object="${object}<done>0</done>"
-            omv_config_add_element "/config/services" "deluge" "${object}" true
+        if ! omv_config_exists "${SERVICE_XPATH}"; then
+            omv_config_add_element "/config/services" "${SERVICE_XPATH_NAME}"
+            omv_config_add_element "${SERVICE_XPATH}" "enable" "0"
+            omv_config_add_element "${SERVICE_XPATH}" "showtab" "0"
+            omv_config_add_element "${SERVICE_XPATH}" "port" "8112"
+            omv_config_add_element "${SERVICE_XPATH}" "done" "0"
         fi
-        
-        omv_install_fixperms
 
         # Activate package triggers. These triggers are only set during the
         # package installation.
         dpkg-trigger update-fixperms
         dpkg-trigger update-locale
+
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
@@ -50,5 +59,7 @@ case "$1" in
         exit 1
     ;;
 esac
+
+#DEBHELPER#
 
 exit 0

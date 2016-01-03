@@ -1,17 +1,40 @@
 Source: openmediavault-deluge
 Section: misc
-XB-Plugin-Section: downloaders
 Priority: optional
 Maintainer: OpenMediaVault Plugin Developers <plugins@omv-extras.org>
 Build-Depends: debhelper (>= 9 )
-Standards-Version: 3.9.3
+Standards-Version: 3.9.6
+XB-Plugin-Section: downloaders
 
 Package: openmediavault-deluge
 Architecture: all
-Depends: ${misc:Depends}, openmediavault (>= 1.0), python, python-twisted, python-openssl,
- intltool, python-xdg, python-chardet, geoip-database, python-notify, python-pygame,
- python-glade2, librsvg2-common, xdg-utils, python-mako, notification-daemon,
- python-appindicator
-Priority: optional
+Depends: openmediavault (>= 3.0),
+         python,
+         python-twisted,
+         python-openssl,
+         intltool,
+         python-xdg,
+         python-chardet,
+         geoip-database,
+         python-notify,
+         python-pygame,
+         python-glade2,
+         librsvg2-common,
+         xdg-utils,
+         python-mako,
+         notification-daemon,
+         python-appindicator,
+         python-geoip,
+         python-gtk2,
+         python-gtk2-dev,
+         python-libtorrent,
+         libtorrent-rasterbar7,
+         deluge,
+         deluge-common,
+         deluge-console,
+         deluge-gtk,
+         deluge-web,
+         deluged,
+         ${misc:Depends}
 Description: OpenMediaVault Deluged plugin
  Deluge is a full-featured BtTorrent client.

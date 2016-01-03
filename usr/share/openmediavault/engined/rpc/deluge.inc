@@ -43,7 +43,7 @@ class OMVRpcServiceDeluge extends OMVRpcServiceAbstract
 
     private function getXPath()
     {
-        return sprintf("//services/%s", $this->getPluginName());
+        return sprintf("/config/services/%s", $this->getPluginName());
     }
 
     private function getXPathForks()
@@ -135,7 +135,7 @@ class OMVRpcServiceDeluge extends OMVRpcServiceAbstract
             }'
         );
 
-        $xPath = sprintf("//system/fstab/mntent[uuid='%s']", $params["mntentref"]);
+        $xPath = sprintf("/config/system/fstab/mntent[uuid='%s']", $params["mntentref"]);
         $deviceDir = $xmlConfig->get($xPath);
         $deviceDir = $deviceDir["dir"];
 
