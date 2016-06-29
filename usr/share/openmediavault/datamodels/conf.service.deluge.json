@@ -1,0 +1,36 @@
+{
+	"type": "config",
+	"id": "conf.service.deluge",
+	"title": "Deluge",
+	"queryinfo": {
+		"xpath": "/config/services/deluge",
+		"iterable": false
+	},
+	"properties": {
+		"enable": {
+			"type": "boolean",
+			"default": false
+		},
+		"showtab": {
+			"type": "boolean",
+			"default": false
+		},
+		"port": {
+			"type": "integer",
+			"minimum": 1025,
+			"maximum": 65535,
+			"default": 6789
+		},
+		"mntentref": {
+			"type": "string",
+			"format": "uuidv4"
+		},
+		"path": {
+			"type": "string"
+		},
+                "done": {
+                        "type": "boolean",
+                        "default": true
+                }
+	}
+}

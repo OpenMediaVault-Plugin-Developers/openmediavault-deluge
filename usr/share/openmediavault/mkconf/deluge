@@ -10,52 +10,66 @@ export PATH=$PATH:/usr/sbin/
 export PATH=$PATH:/sbin
 export DEBIAN_FRONTEND=noninteractive
 
+OMV_DELUGE_XPATH="/config/services/deluge"
 
+if [ ! -f "/lib/systemd/system/deluge-web.service" ]; then
+    cat <<EOF > /lib/systemd/system/deluge-web.service
+[Unit]
+Description=Deluge Bittorrent Client Web Interface
+After=network-online.target
 
-install_libs() {
-# Need to get compatable versions of libtorrent-rasterbar and python-libtorrent
-# I have compiled these deb packages and uploaded them for use until a better method is found
-URL_LINK="http://dh2k.omv-extras.org/debian/pool/main/libt/libtorrent-rasterbar/"
+[Service]
+Type=simple
 
-cd /tmp
-echo "Starting Deluge install process."
-echo "Installing libboost-system-dev & libboost-python-dev"
-echo "Please wait, it can take some time...."
-apt-get -y -q install libboost-system-dev libboost-python-dev >/dev/null 2>&1 || apt-get install -y -f
-arch=$(uname -m | sed 's/x86_//;s/i[3-6]86/32/')
+User=deluge-daemon
+Group=users
+UMask=000
 
-if [ "${arch}" == "32" ]; then
-    echo "Installing libs for a 32 bit system"
-    MCN="i386"
-elif [ "${arch}" == "64" ]; then
-    echo "Installing libs for a 64 bit system"
-    MCN="amd64"
-else
-    echo "Installing arm type libs"
-    MCN="armhf"
+ExecStart=/usr/bin/deluge-web
+
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
+EOF
+    systemctl daemon-reload
 fi
 
-wget -q "${URL_LINK}libtorrent-rasterbar7_0.16.17-1ubuntu3~ppa1~precise_${MCN}.deb"
-wget -q "${URL_LINK}python-libtorrent_0.16.17-1ubuntu3~ppa1~precise_${MCN}.deb"
+if [ "$(omv_config_get "${OMV_DELUGE_XPATH}/enable")" = "1" ]; then
+    systemctl restart deluge-web.service
+    systemctl enable deluge-web.service
+else
+    systemctl stop deluge-web.service
+    systemctl disable deluge-web.service
+fi
 
-dpkg -i "libtorrent-rasterbar7_0.16.17-1ubuntu3~ppa1~precise_${MCN}.deb"
-dpkg -i "python-libtorrent_0.16.17-1ubuntu3~ppa1~precise_${MCN}.deb"
+reset() {
+if [ "$(omv_config_get "${OMV_DELUGE_XPATH}/done")" = "1" ]; then
+    xmlstarlet ed -L -u "/config/services/deluge/done" -v 0 ${OMV_CONFIG_FILE}
+    echo "Use this section to install another version of Deluge."
+    echo ""
+    echo "If you reset in error, just click start again"
+    echo "and you will return to the plugin screen."
+    echo ""
+else
+    echo "If you reset in error, just click start again"
+    echo "and you will return to the install selection screen."
+    echo ""
+    xmlstarlet ed -L -u "/config/services/deluge/done" -v 1 ${OMV_CONFIG_FILE}
+fi
 
-rm -f "/tmp/libtorrent-rasterbar7_0.16.17-1ubuntu3~ppa1~precise_${MCN}.deb"
-rm -f "/tmp/python-libtorrent_0.16.17-1ubuntu3~ppa1~precise_${MCN}.deb"
+echo "Done"
+exit
 }
 
 install() {
-#install_libs;
-
-#apt-get -y install -t precise deluge deluge-common deluged deluge-web deluge-console
+apt-get -y -q install deluge deluge-common deluged deluge-web deluge-console
 
 xmlstarlet ed -L -u "/config/services/deluge/done" -v 1 ${OMV_CONFIG_FILE}
 }
 
 old() {
-#install_libs;
-
 wget -q http://archive.ubuntu.com/ubuntu/pool/universe/d/deluge/deluge-common_1.3.5-0ubuntu2~precise2_all.deb
 wget -q http://archive.ubuntu.com/ubuntu/pool/universe/d/deluge/deluge-console_1.3.5-0ubuntu2~precise2_all.deb
 wget -q http://archive.ubuntu.com/ubuntu/pool/universe/d/deluge/deluge-web_1.3.5-0ubuntu2~precise2_all.deb
@@ -80,6 +94,9 @@ case "$2" in
   old)
     old
     ;;
+  reset)
+    reset
+    ;;
   *)
-    exit 1
+    exit
 esac

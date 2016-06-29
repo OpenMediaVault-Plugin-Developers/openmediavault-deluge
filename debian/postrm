@@ -25,7 +25,17 @@ case "$1" in
             fi
         fi
 
-        omv_config_delete "//services/deluge"
+        systemctl stop deluge-daemon.service >/dev/null || true
+        systemctl disable deluge-daemon.service >/dev/null || true
+
+        if [ -f "/lib/systemd/system/deluge-web.service" ]; then
+            systemctl stop deluge-web.service >/dev/null || true
+            systemctl disable deluge-web.service >/dev/null || true
+            rm /lib/systemd/system/deluge-web.service
+            systemctl daemon-reload
+        fi
+
+        omv_config_delete "/config/services/deluge"
 
         userdel -r deluge-daemon
 

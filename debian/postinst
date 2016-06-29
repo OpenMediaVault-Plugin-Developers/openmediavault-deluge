@@ -9,10 +9,10 @@ case "$1" in
     configure)
         # Set the default settings of the service package to those expected by
         # OpenMediaVault.
-        #if [ -z "${2}" ] && [ -f /etc/init.d/deluge-daemon ]; then
-        #    systemctl stop deluge-daemon.service
-        #    systemctl disable deluge-daemon.service
-        #fi
+        if [ -z "${2}" ]; then
+            systemctl stop deluge-daemon.service >/dev/null || true
+            systemctl disable deluge-daemon.service >/dev/null || true
+        fi
 
         SERVICE_XPATH_NAME="deluge"
         SERVICE_XPATH="/config/services/${SERVICE_XPATH_NAME}"
@@ -21,7 +21,6 @@ case "$1" in
         if ! getent passwd deluge-daemon >/dev/null 2>&1; then
             echo "Adding deluge-daemon user..."
             useradd --create-home --groups users --no-user-group --shell /usr/sbin/nologin deluge-daemon
-            insserv -d deluge-daemon
         else
             echo "deluge-daemon user already exists."
         fi
@@ -41,7 +40,7 @@ case "$1" in
             omv_config_add_element "${SERVICE_XPATH}" "enable" "0"
             omv_config_add_element "${SERVICE_XPATH}" "showtab" "0"
             omv_config_add_element "${SERVICE_XPATH}" "port" "8112"
-            omv_config_add_element "${SERVICE_XPATH}" "done" "0"
+            omv_config_add_element "${SERVICE_XPATH}" "done" "1"
         fi
 
         # Activate package triggers. These triggers are only set during the

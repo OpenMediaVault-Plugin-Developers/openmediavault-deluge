@@ -1,0 +1,33 @@
+[{
+	"type": "rpc",
+	"id": "rpc.deluge.setsettings",
+	"params": {
+		"type": "object",
+		"properties": {
+			"enable": {
+			    "type": "boolean",
+				"required": true
+			},
+			"showtab": {
+				"type": "boolean",
+				"required": true
+			},
+			"port": {
+				"type": "integer",
+				"required": false
+			},
+			"mntentref": {
+				"type": "string",
+				"format": "uuidv4"
+			},
+			"path": {
+				"type": "string",
+				"required": false
+			},
+                        "done": {
+                                "type": "boolean",
+                                "required": true
+                        }
+		}
+	}
+}]

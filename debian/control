@@ -8,7 +8,7 @@ XB-Plugin-Section: downloaders
 
 Package: openmediavault-deluge
 Architecture: all
-Depends: openmediavault (= 3.0.13),
+Depends: openmediavault (>= 3.0.13),
          python,
          python-twisted,
          python-openssl,
@@ -28,7 +28,9 @@ Depends: openmediavault (= 3.0.13),
          python-gtk2,
          python-gtk2-dev,
          python-libtorrent,
-         libtorrent-rasterbar7,
+         libboost-system-dev,
+         libboost-python-dev,
+         libtorrent-rasterbar-dev,
          deluge,
          deluge-common,
          deluge-console,

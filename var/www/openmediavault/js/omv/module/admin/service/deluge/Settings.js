@@ -47,14 +47,6 @@ Ext.define("OMV.module.admin.service.deluge.Settings", {
             properties : "!show"
         },{
             name       : [
-                "mainbackup",
-            ],
-            conditions : [
-                { name  : "done", value : false }
-            ],
-            properties : "!show"
-        },{
-            name       : [
                 "install",
             ],
             conditions : [
@@ -71,17 +63,6 @@ Ext.define("OMV.module.admin.service.deluge.Settings", {
                 "done",
             ],
             properties : "!show"
-        },{
-            name : [
-                "opendeluge",
-            ],
-            conditions : [{
-                name  : "enable",
-                value : true
-            }],
-            properties : [
-                "enabled"
-            ]
         }]
     }],
 
@@ -105,6 +86,50 @@ Ext.define("OMV.module.admin.service.deluge.Settings", {
         });
 
         me.callParent(arguments);
+    },
+
+    getButtonItems: function() {
+        var items = this.callParent(arguments);
+
+        items.push({
+            id: this.getId() + "-show",
+            xtype: "button",
+            text: _("Open Web Client"),
+            icon: "images/deluge.png",
+            iconCls: Ext.baseCSSPrefix + "btn-icon-16x16",
+            scope: this,
+            handler: function() {
+                var port = this.getForm().findField("port").getValue();
+                var link = "http://" + location.hostname + ":" + port + "/";
+                window.open(link, "_blank");
+            }
+        }, {
+            id: this.getId() + '-backup',
+            xtype: 'button',
+            text: _('Backup'),
+            icon: 'images/wrench.png',
+            iconCls: Ext.baseCSSPrefix + 'btn-icon-16x16',
+            scope: this,
+            handler: Ext.Function.bind(this.onBackupButton, this)
+        }, {
+            id: this.getId() + '-restore',
+            xtype: 'button',
+            text: _('Restore'),
+            icon: 'images/wrench.png',
+            iconCls: Ext.baseCSSPrefix + 'btn-icon-16x16',
+            scope: this,
+            handler: Ext.Function.bind(this.onRestoreButton, this)
+        }, {
+            id: this.getId() + '-resetd',
+            xtype: 'button',
+            text: _('Reset_Install'),
+            icon: 'images/wrench.png',
+            iconCls: Ext.baseCSSPrefix + 'btn-icon-16x16',
+            scope: this,
+            handler: Ext.Function.bind(this.onResetdButton, this)
+        });
+
+        return items;
     },
 
     getFormItems : function() {
@@ -144,86 +169,6 @@ Ext.define("OMV.module.admin.service.deluge.Settings", {
                 allowDecimals: false,
                 allowBlank: false,
                 value: 8112
-            },{
-                xtype   : "button",
-                name    : "opendeluge",
-                text    : _("Deluge Web Interface"),
-                scope   : this,
-                handler : function() {
-                    var me = this;
-                    var port = me.getForm().findField("port").getValue();
-                    var link = "http://" + location.hostname + ":" + port + "/";
-                    window.open(link, "_blank");
-                },
-                margin : "0 0 5 0"
-            }]
-            },{
-                xtype        : "fieldset",
-                title        : _("Backup User Settings"),
-                name         : "mainbackup",
-                fieldDefaults: {
-                        labelSeparator: ""
-                },
-                items : [{
-                    xtype         : "combo",
-                    name          : "mntentref",
-                    fieldLabel    : _("Volume"),
-                    emptyText     : _("Select a volume ..."),
-                    allowBlank    : false,
-                    allowNone     : false,
-                    editable      : false,
-                    triggerAction : "all",
-                    displayField  : "description",
-                    valueField    : "uuid",
-                    store         : Ext.create("OMV.data.Store", {
-                        autoLoad : true,
-                        model    : OMV.data.Model.createImplicit({
-                            idProperty : "uuid",
-                            fields     : [
-                                { name : "uuid", type : "string" },
-                                { name : "devicefile", type : "string" },
-                                { name : "description", type : "string" }
-                            ]
-                        }),
-                    proxy : {
-                        type : "rpc",
-                        rpcData : {
-                            service : "ShareMgmt",
-                            method  : "getCandidates"
-                        },
-                        appendSortParams : false
-                    },
-                    sorters : [{
-                        direction : "ASC",
-                        property  : "devicefile"
-                    }]
-                })
-            },{
-                xtype      : "textfield",
-                name       : "path",
-                fieldLabel : _("Path"),
-                allowNone  : true,
-                readOnly   : true
-            },{
-                xtype   : "button",
-                name    : "backup",
-                text    : _("Backup"),
-                scope   : this,
-                handler : Ext.Function.bind(me.onBackupButton, me, [ me ]),
-                margin  : "5 0 0 0"
-            },{
-                border : false,
-                html   : "<ul><li>" + _("Backup settings to a data drive.") + "</li></ul>"
-            },{
-                xtype   : "button",
-                name    : "restore",
-                text    : _("Restore"),
-                scope   : this,
-                handler : Ext.Function.bind(me.onRestoreButton, me, [ me ]),
-                margin  : "5 0 0 0"
-            },{
-                border : false,
-                html   : "<ul><li>" + _("Restore settings from a data drive.") + "</li></ul>"
             }]
             },{
                 xtype         : "fieldset",
@@ -253,32 +198,70 @@ Ext.define("OMV.module.admin.service.deluge.Settings", {
     },
 
     onBackupButton: function() {
+        OMV.Download.request('Deluge', 'downloadBackup');
+    },
+
+    doonResetd: function() {
         var me = this;
+        var wnd = Ext.create("OMV.window.Execute", {
+            title           : _("Cleaning Apt Files and Lists..."),
+            rpcService      : "Deluge",
+            rpcMethod       : "doReset",
+            rpcIgnoreErrors : true,
+            hideStartButton : true,
+            hideStopButton  : true,
+            listeners       : {
+                scope     : me,
+                finish    : function(wnd, response) {
+                    wnd.appendValue(_("Done..."));
+                    wnd.setButtonDisabled("close", false);
+                },
+                exception : function(wnd, error) {
+                    OMV.MessageBox.error(null, error);
+                    wnd.setButtonDisabled("close", false);
+                },
+                close     : function() {
+                    me.doReload();
+                }
+            }
+        }).show();
+        wnd.setButtonDisabled("close", true);
+        wnd.show();
+        wnd.start();
+    },
+
+    onResetdButton: function() {
+        var me = this;
+        var wnd = "test";
         me.doSubmit();
         Ext.create("OMV.window.Execute", {
-            title      : _("Backup"),
+            title      : _("Deluge Reseter"),
             rpcService : "Deluge",
-            rpcMethod  : "doBackup",
+            rpcMethod  : "doReset",
             listeners  : {
                 scope     : me,
                 exception : function(wnd, error) {
                     OMV.MessageBox.error(null, error);
-                }
+                },
+                close : function() {
+                    me.doReload();
+                },
+                finish : function() {
+                                    me.doReload();
+                                }
             }
         }).show();
     },
 
     onRestoreButton: function() {
-        var me = this;
-        me.doSubmit();
-        Ext.create("OMV.window.Execute", {
-            title      : _("Restore"),
-            rpcService : "Deluge",
-            rpcMethod  : "doRestore",
-            listeners  : {
-                scope     : me,
-                exception : function(wnd, error) {
-                    OMV.MessageBox.error(null, error);
+        Ext.create('OMV.window.Upload', {
+            title: _('Upload backup'),
+            service: 'Deluge',
+            method: 'uploadBackup',
+            listeners: {
+                scope: this,
+                success: function(wnd, response) {
+                    OMV.MessageBox.info(_('Restored backup'), _('Backup was successfully restored.'));
                 }
             }
         }).show();
